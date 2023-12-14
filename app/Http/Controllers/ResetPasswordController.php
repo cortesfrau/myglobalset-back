@@ -77,7 +77,7 @@ class ResetPasswordController extends Controller
     public function successResponse()
     {
         return response()->json([
-            'data' => 'Password reset email sent. Please, check your inbox.',
+            'data' => 'Email sent. Please, check your inbox.',
         ], Response::HTTP_OK);
     }
 
@@ -115,12 +115,12 @@ class ResetPasswordController extends Controller
             $tokenRow->delete();
         }
 
-        return response()->json(['data' => 'Password changed.'], Response::HTTP_CREATED);
+        return response()->json(['data' => 'Password changed successfully.'], Response::HTTP_CREATED);
     }
 
     private function tokenNotFoundResponse()
     {
-        return response()->json(['error' => 'Token or email not valid.'],
+        return response()->json(['error' => 'Something went wrong. Please, request a new link.'],
         Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 

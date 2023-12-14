@@ -29,7 +29,7 @@ class AuthController extends Controller
         $credentials = request(['email', 'password']);
 
         if (! $token = auth()->attempt($credentials)) {
-            return response()->json(['error' => 'Email or password doesn\'t exist.'], 401);
+            return response()->json(['error' => 'Could not log with this email or password.'], 401);
         }
 
         return $this->respondWithToken($token);
