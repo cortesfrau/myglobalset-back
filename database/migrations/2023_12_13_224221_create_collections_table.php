@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Schema;
 
 class CreateCollectionsTable extends Migration
 {
+
     public function up()
     {
         Schema::create('collections', function (Blueprint $table) {
@@ -21,4 +22,5 @@ class CreateCollectionsTable extends Migration
     {
         Schema::dropIfExists('collections');
     }
+
 }

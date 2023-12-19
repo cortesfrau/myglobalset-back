@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ResetPasswordController;
 use App\Http\Controllers\CollectionController;
+use App\Http\Controllers\CollectedCardPrintController;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,6 +22,7 @@ use App\Http\Controllers\CollectionController;
 Route::middleware('auth')->get('/user', function (Request $request) {
     return $request->user();
 });
+
 
 Route::group([
 
@@ -40,6 +42,7 @@ Route::group([
 
 });
 
+
 Route::group([
 
     'middleware' => 'api',
@@ -51,6 +54,7 @@ Route::group([
 
 });
 
+
 Route::group([
 
     'middleware' => 'api',
@@ -59,5 +63,21 @@ Route::group([
 ], function ($router) {
 
     Route::post('create', [CollectionController::class, 'create']);
+    Route::get('{collectionId}', [CollectionController::class, 'getCollection']);
+    Route::get('user/{userId}', [CollectionController::class, 'getUserCollections']);
+
+});
+
+
+Route::group([
+
+    'middleware' => 'api',
+    'prefix' => 'collected-card-print'
+
+], function ($router) {
+
+    Route::post('create', [CollectedCardPrintController::class, 'create']);
+    Route::post('remove', [CollectedCardPrintController::class, 'remove']);
+    Route::get('is-print-in-collection', [CollectedCardPrintController::class, 'isPrintInCollection']);
 
 });

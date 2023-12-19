@@ -1,10 +1,10 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use Illuminate\Http\Request;
 use App\Models\Collection;
 use Illuminate\Database\QueryException;
+use App\Models\User;
 
 class CollectionController extends Controller
 {
@@ -38,4 +38,45 @@ class CollectionController extends Controller
             throw $exception;
         }
     }
+
+    public function getUserCollections($userId)
+    {
+        try {
+
+            $userExists = User::where('id', $userId)->exists();
+
+            if (!$userExists) {
+                return response()->json(['error' => 'User not found.'], 404);
+            }
+
+            $collections = Collection::where('user_id', $userId)->get();
+
+            return response()->json(['collections' => $collections], 200);
+
+        } catch (\Exception $exception) {
+
+            return response()->json(['error' => 'Error retrieving user collections.'], 500);
+        }
+    }
+
+    public function getCollection($collectionId)
+    {
+        try {
+
+            $collectionExists = Collection::where('id', $collectionId)->exists();
+
+            if (!$collectionExists) {
+                return response()->json(['error' => 'Collection not found.'], 404);
+            }
+
+            $collection = Collection::where('id', $collectionId)->get();
+
+            return response()->json($collection[0], 200);
+
+        } catch (\Exception $exception) {
+
+            return response()->json(['error' => 'Error retrieving collection.'], 500);
+        }
+    }
+
 }
