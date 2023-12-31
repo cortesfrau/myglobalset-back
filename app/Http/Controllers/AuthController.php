@@ -26,14 +26,22 @@ class AuthController extends Controller
      */
     public function login()
     {
+        // Get credentials from the login form.
         $credentials = request(['email', 'password']);
 
-        if (! $token = auth()->attempt($credentials)) {
-            return response()->json(['error' => 'Could not log with this email or password.'], 401);
+        // Attempt to authenticate the user with the provided credentials.
+        $token = auth()->attempt($credentials);
+
+        // Check if authentication was successful.
+        if (!$token) {
+            // If unsuccessful, return an error message and a 401 (Unauthorized) response code.
+            return response()->json(['error' => 'Invalid email or password.'], 401);
         }
 
+        // If authentication was successful, generate a response with the access token.
         return $this->respondWithToken($token);
     }
+
 
     /**
      * Register a new user.

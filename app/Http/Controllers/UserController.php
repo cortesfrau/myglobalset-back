@@ -7,51 +7,61 @@ use App\Models\User;
 
 class UserController extends Controller
 {
+    /**
+     * UserController constructor.
+     * Set up middleware to ensure authentication for API requests.
+     */
     public function __construct()
     {
         $this->middleware('auth:api');
     }
 
+    /**
+     * Update the user profile.
+     *
+     * @param Request $request - HTTP request containing user profile data.
+     * @return \Illuminate\Http\JsonResponse - JSON response indicating success or failure.
+     */
     public function update(Request $request)
     {
-        // Obtener el usuario autenticado
+        // Get the authenticated user
         $authenticatedUser = auth()->user();
 
-        // Buscar el usuario por su ID
+        // Find the user by their ID
         $user = User::find($request->input('id'));
 
-        // Verificar si el usuario existe
+        // Check if the user exists
         if (!$user) {
-            return response()->json(['error' => 'Usuario no encontrado'], 404);
+            return response()->json(['error' => 'User not found'], 404);
         }
 
-        // Verificar que el usuario autenticado es el propietario del perfil
+        // Verify that the authenticated user is the owner of the profile
         if ($authenticatedUser->id !== $user->id) {
-            return response()->json(['error' => 'No tienes permisos para actualizar este perfil'], 403);
+            return response()->json(['error' => 'You do not have permission to update this profile'], 403);
         }
 
-        // Valida los datos del formulario
+        // Validate the form data
         $request->validate([
             'first_name' => 'required',
             'last_name' => 'required',
-            'email' => 'required',
-            'password' => 'sometimes|confirmed',
+            'email' => 'required|email',
+            'password' => 'sometimes|nullable|confirmed|min:8',
         ]);
 
-        // Actualiza los campos del usuario
+        // Update user fields
         $user->first_name = $request->input('first_name');
         $user->last_name = $request->input('last_name');
         $user->email = $request->input('email');
 
-        // Si se proporciona una nueva contraseña, actualizarla
-        if ($request->has('password')) {
+        // If a new password is provided, update it
+        if ($request->filled('password')) {
             $user->password = bcrypt($request->input('password'));
         }
 
-        // Guarda los cambios en la base de datos
+        // Save changes to the database
         $user->save();
 
-        // Respuesta exitosa
-        return response()->json(['message' => 'Usuario actualizado correctamente'], 200);
+        // Successful response
+        return response()->json(['message' => 'User updated successfully'], 200);
     }
 }
