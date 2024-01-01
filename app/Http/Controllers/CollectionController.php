@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use App\Models\Collection;
 use Illuminate\Database\QueryException;
 use App\Models\User;
+use App\Models\CollectedCardPrint;
 
 class CollectionController extends Controller
 {
@@ -51,7 +52,7 @@ class CollectionController extends Controller
             $collections = Collection::where('user_id', $userId)->get();
 
             if ($collections->isEmpty()) {
-                return response()->json(['error' => 'No collections found.'], 404);
+                return response()->json(['error' => 'No collections found for the user.'], 404);
             }
 
             return response()->json(['collections' => $collections], 200);
@@ -61,6 +62,30 @@ class CollectionController extends Controller
         }
     }
 
+    public function delete($collectionId)
+    {
+        try {
+            // Check if the collection exists
+            $collectionExists = Collection::where('id', $collectionId)->exists();
+
+            if (!$collectionExists) {
+                return response()->json(['error' => 'Collection not found.'], 404);
+            }
+
+            // Delete collected card prints associated with the collection
+            CollectedCardPrint::where('collection_id', $collectionId)->delete();
+
+            // Delete the collection
+            Collection::where('id', $collectionId)->delete();
+
+            // Return a successful response
+            return response()->json(['message' => 'Collection deleted successfully.'], 200);
+
+        } catch (QueryException $exception) {
+            // Handle exceptions during the process
+            return response()->json(['error' => 'Error deleting collection.'], 500);
+        }
+    }
 
     public function getCollection($collectionId)
     {

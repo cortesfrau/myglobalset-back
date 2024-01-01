@@ -63,6 +63,7 @@ Route::group([
 ], function ($router) {
 
     Route::post('create', [CollectionController::class, 'create']);
+    Route::post('delete/{collectionId}', [CollectionController::class, 'delete']);
     Route::get('{collectionId}', [CollectionController::class, 'getCollection']);
     Route::get('user/{userId}', [CollectionController::class, 'getUserCollections']);
 
