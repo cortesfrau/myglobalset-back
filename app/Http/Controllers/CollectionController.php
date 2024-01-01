@@ -42,7 +42,6 @@ class CollectionController extends Controller
     public function getUserCollections($userId)
     {
         try {
-
             $userExists = User::where('id', $userId)->exists();
 
             if (!$userExists) {
@@ -51,13 +50,17 @@ class CollectionController extends Controller
 
             $collections = Collection::where('user_id', $userId)->get();
 
+            if ($collections->isEmpty()) {
+                return response()->json(['error' => 'No collections found.'], 404);
+            }
+
             return response()->json(['collections' => $collections], 200);
 
         } catch (\Exception $exception) {
-
             return response()->json(['error' => 'Error retrieving user collections.'], 500);
         }
     }
+
 
     public function getCollection($collectionId)
     {
