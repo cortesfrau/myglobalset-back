@@ -8,64 +8,62 @@ use Illuminate\Database\QueryException;
 class CollectedCardPrintController extends Controller
 {
 
-    public function create(Request $request)
-    {
-        try {
-            $request->validate([
-                'scryfall_id' => 'required',
-                'collection_id' => 'required',
-            ]);
+  public function create(Request $request)
+  {
+    try {
+        $request->validate([
+            'scryfall_id' => 'required',
+            'collection_id' => 'required',
+        ]);
 
-            // Verificar si ya existe la entrada en la colección
-            $isPrintInCollection = CollectedCardPrint::where([
-                'scryfall_id' => $request->scryfall_id,
-                'collection_id' => $request->collection_id,
-            ])->exists();
+        $isPrintInCollection = CollectedCardPrint::where([
+            'scryfall_id' => $request->scryfall_id,
+            'collection_id' => $request->collection_id,
+        ])->exists();
 
-            if ($isPrintInCollection) {
-                return response()->json(['error' => 'Card print already exists in the collection.'], 400);
-            }
-
-            $collected_card_print = new CollectedCardPrint([
-                'scryfall_id' => $request->scryfall_id,
-                'collection_id' => $request->collection_id,
-            ]);
-
-            $collected_card_print->save();
-
-            return response()->json(['message' => 'Card print stored.'], 201);
-
-        } catch (QueryException $exception) {
-            if ($exception->errorInfo[1] === 1062) {
-                return response()->json(['error' => 'Could not store card print.'], 400);
-            }
-
-            throw $exception;
+        if ($isPrintInCollection) {
+            return response()->json(['error' => 'Card print already exists in the collection.'], 400);
         }
-    }
 
+        $collected_card_print = new CollectedCardPrint([
+            'scryfall_id' => $request->scryfall_id,
+            'collection_id' => $request->collection_id,
+        ]);
 
+        $collected_card_print->save();
 
-    public function remove(Request $request)
-    {
-        try {
-            $request->validate([
-                'scryfall_id' => 'required',
-                'collection_id' => 'required',
-            ]);
+        return response()->json(['message' => 'Card print stored.'], 201);
 
-            // Busca y elimina la impresión coleccionada
-            CollectedCardPrint::where([
-                'scryfall_id' => $request->scryfall_id,
-                'collection_id' => $request->collection_id,
-            ])->delete();
-
-            return response()->json(['message' => 'Collected card print removed.'], 200);
-        } catch (\Exception $exception) {
-            return response()->json(['error' => 'Error removing collected card print.'], 500);
+    } catch (QueryException $exception) {
+        if ($exception->errorInfo[1] === 1062) {
+            return response()->json(['error' => 'Could not store card print.'], 400);
         }
-    }
 
+        throw $exception;
+    }
+}
+
+  public function remove(Request $request)
+  {
+    try {
+      $request->validate([
+          'scryfall_id' => 'required',
+          'collection_id' => 'required',
+      ]);
+
+      CollectedCardPrint::where([
+          'scryfall_id' => $request->scryfall_id,
+          'collection_id' => $request->collection_id,
+      ])->delete();
+
+      return response()->json(['message' => 'Collected card print removed.'], 200);
+
+    } catch (\Exception $exception) {
+
+      return response()->json(['error' => 'Error removing collected card print.'], 500);
+
+    }
+  }
 
     public function isPrintInCollection(Request $request)
     {
@@ -86,6 +84,5 @@ class CollectedCardPrintController extends Controller
             return response()->json(['error' => 'Error checking if print is in collection.'], 500);
         }
     }
-
 
 }

@@ -7,6 +7,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ResetPasswordController;
 use App\Http\Controllers\CollectionController;
 use App\Http\Controllers\CollectedCardPrintController;
+use App\Http\Controllers\ScryfallController;
 
 /*
 |--------------------------------------------------------------------------
@@ -66,7 +67,7 @@ Route::group([
     Route::post('delete/{collectionId}', [CollectionController::class, 'delete']);
     Route::get('{collectionId}', [CollectionController::class, 'getCollection']);
     Route::get('user/{userId}', [CollectionController::class, 'getUserCollections']);
-
+    Route::get('stats/{collectionId}', [CollectionController::class, 'getCollectionStats']);
 });
 
 
@@ -80,5 +81,21 @@ Route::group([
     Route::post('create', [CollectedCardPrintController::class, 'create']);
     Route::post('remove', [CollectedCardPrintController::class, 'remove']);
     Route::get('is-print-in-collection', [CollectedCardPrintController::class, 'isPrintInCollection']);
+
+});
+
+
+Route::group([
+
+    'middleware' => 'api',
+    'prefix' => 'scryfall'
+
+], function ($router) {
+
+    Route::get('card/{cardName}', [ScryfallController::class, 'getCardByName']);
+
+    Route::get('card/id/{oracleId}', [ScryfallController::class, 'getCardByOracleId']);
+
+    Route::get('set/{setId}', [ScryfallController::class, 'getSetById']);
 
 });
