@@ -143,9 +143,12 @@ class CollectionController extends Controller
                 return response()->json(['error' => 'Error retrieving total card print count from Scryfall.'], 500);
             }
 
+            $completedPercentage = round($collectedCardPrintCount * 100 / count($totalPrints), 1);
+
             $data = [
                 "collected_prints_count" => $collectedCardPrintCount,
                 "total_prints_count" => count($totalPrints),
+                "completed_percentage" => $completedPercentage,
             ];
 
             return response()->json($data, 200);

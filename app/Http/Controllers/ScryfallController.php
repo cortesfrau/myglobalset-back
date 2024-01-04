@@ -56,6 +56,8 @@ class ScryfallController extends Controller
               'digital' => $cardPrinting['digital'],
               'artist' => $cardPrinting['artist'],
               'set_release_date' => $cardPrinting['released_at'],
+              'foil' => $cardPrinting['foil'],
+              'nonfoil' => $cardPrinting['nonfoil'],
             ];
 
         } else {
