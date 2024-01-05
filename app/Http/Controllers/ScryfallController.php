@@ -68,7 +68,7 @@ class ScryfallController extends Controller
             ];
 
             return [
-                'oracle_id' => $cardPrinting['oracle_id'],
+                'id' => $cardPrinting['oracle_id'],
                 'set_name' => $cardPrinting['set_name'],
                 'set_id' => $cardPrinting['set_id'],
                 'lang' => $english,
