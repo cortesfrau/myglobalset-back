@@ -78,7 +78,6 @@ class CollectedCardPrintController extends Controller
                 'collection_id' => $request->collection_id,
             ])->exists();
 
-            // Devolver directamente el booleano
             return response()->json($isPrintInCollection, 200);
         } catch (\Exception $exception) {
             return response()->json(['error' => 'Error checking if print is in collection.'], 500);

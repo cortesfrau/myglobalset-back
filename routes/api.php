@@ -66,8 +66,10 @@ Route::group([
     Route::post('create', [CollectionController::class, 'create']);
     Route::post('delete/{collectionId}', [CollectionController::class, 'delete']);
     Route::get('{collectionId}', [CollectionController::class, 'getCollection']);
+    Route::get('content/{collectionId}', [CollectionController::class, 'getCollectionContent']);
     Route::get('user/{userId}', [CollectionController::class, 'getUserCollections']);
     Route::get('stats/{collectionId}', [CollectionController::class, 'getCollectionStats']);
+
 });
 
 

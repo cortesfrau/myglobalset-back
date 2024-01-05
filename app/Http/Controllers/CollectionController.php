@@ -110,6 +110,57 @@ class CollectionController extends Controller
         }
     }
 
+    public function getCollectionContent($collectionId)
+    {
+        try {
+            // Verificar si la colección existe
+            $collectionExists = Collection::where('id', $collectionId)->exists();
+
+            if (!$collectionExists) {
+                return response()->json(['error' => 'Collection not found.'], 404);
+            }
+
+            // Obtener la colección
+            $collection = Collection::find($collectionId);
+
+            // Verificar si la carta existe en Scryfall
+            $scryfallController = new ScryfallController();
+            $cardData = $scryfallController->getCardByOracleId($collection->card_id);
+
+            $cardPrints = $cardData['prints'];
+
+            foreach ($cardPrints as &$cardPrint) {
+                // Verificar si la clave 'id' está presente en $cardPrint antes de acceder a ella
+                $scryfallId = isset($cardPrint['id']) ? $cardPrint['id'] : null;
+
+                // Loguear el valor de $scryfallId
+                \Log::info("Valor de \$scryfallId: {$scryfallId}");
+
+                // Verificar si el print está en la tabla collected_card_prints
+                $isCollected = CollectedCardPrint::where('collection_id', $collectionId)
+                    ->where('scryfall_id', $scryfallId)
+                    ->exists();
+
+                // Añadir la propiedad is_collected a cada impresión
+                $cardPrint['is_collected'] = $isCollected;
+            }
+
+            // Construir el objeto final con la misma arquitectura que getCardPrintingsdByOracleId
+            $formattedData = [
+                'name' => $cardData['name'],
+                'oracle_id' => $cardData['oracle_id'],
+                'art_uri' => $cardData['art_uri'],
+                'prints' => array_values($cardPrints),
+            ];
+
+            return response()->json($formattedData, 200);
+
+        } catch (\Exception $exception) {
+            // Loguear la excepción
+            \Log::error("Error en getCollectionContent: {$exception->getMessage()}");
+            return response()->json(['error' => 'Error retrieving collection content.'], 500);
+        }
+    }
 
     public function getCollectionStats($collectionId)
     {
