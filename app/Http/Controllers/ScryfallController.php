@@ -17,7 +17,7 @@ class ScryfallController extends Controller
     public function getCardByOracleId($oracleId)
     {
         try {
-            $cardPrintings = $this->getCardPrintingsdByOracleId($oracleId);
+            $cardPrintings = $this->getCardPrintingsByOracleId($oracleId);
 
             $cardPrintings = array_filter($cardPrintings['data'], function ($printing) {
                 return empty($printing['digital']) || !$printing['digital'];
@@ -53,7 +53,7 @@ class ScryfallController extends Controller
             if (isset($languagesData[$languageCode])) {
                 $languageData = $languagesData[$languageCode];
 
-                $setIcon = $this->getSetIcon($cardPrinting['set_id']);
+                $setIcon = $this->getCachedSetIcon($cardPrinting['set_id']);
 
                 return [
                     'id' => $cardPrinting['id'],
@@ -95,27 +95,37 @@ class ScryfallController extends Controller
     }
 
     /**
-     * Get card printings by Oracle ID.
+     * Get card printings by Oracle ID with caching.
      *
      * @param string $oracleId
      * @return array
      * @throws \Exception
      */
-    private function getCardPrintingsdByOracleId($oracleId)
+    private function getCardPrintingsByOracleId($oracleId)
     {
-        $apiUrl = "https://api.scryfall.com/cards/search?q=oracleid:{$oracleId}&unique=prints&order=released&dir=asc&include_multilingual=true";
+        $cacheKey = 'card_printings_' . $oracleId;
 
-        try {
-            $response = Http::get($apiUrl);
+        // Try to get card printings from cache
+        $cardPrintings = cache($cacheKey);
 
-            if ($response->successful()) {
-                return $response->json();
-            } else {
-                throw new \Exception('Error in the Scryfall request');
+        if ($cardPrintings === null) {
+            // If not in cache, make the API request and store the response in cache
+            try {
+                $apiUrl = "https://api.scryfall.com/cards/search?q=oracleid:{$oracleId}&unique=prints&order=released&dir=asc&include_multilingual=true";
+                $response = Http::get($apiUrl);
+
+                if ($response->successful()) {
+                    $cardPrintings = $response->json();
+                    cache([$cacheKey => $cardPrintings], now()->addHours(24)); // Cache for 24 hours
+                } else {
+                    throw new \Exception('Error in the Scryfall request');
+                }
+            } catch (\Exception $e) {
+                throw new \Exception('Error in the Scryfall request: ' . $e->getMessage());
             }
-        } catch (\Exception $e) {
-            throw new \Exception('Error in the Scryfall request: ' . $e->getMessage());
         }
+
+        return $cardPrintings;
     }
 
     /**
@@ -127,36 +137,57 @@ class ScryfallController extends Controller
      */
     public function getSetById($setId)
     {
-        $apiUrl = "https://api.scryfall.com/sets/{$setId}";
+        $cacheKey = 'set_info_' . $setId;
 
-        try {
-            $response = Http::get($apiUrl);
+        // Try to get set details from cache
+        $setInfo = cache($cacheKey);
 
-            if ($response->successful()) {
-                return $response->json();
-            } else {
-                throw new \Exception('Error in the Scryfall request');
+        if ($setInfo === null) {
+            // If not in cache, make the API request and store the response in cache
+            try {
+                $apiUrl = "https://api.scryfall.com/sets/{$setId}";
+                $response = Http::get($apiUrl);
+
+                if ($response->successful()) {
+                    $setInfo = $response->json();
+                    cache([$cacheKey => $setInfo], now()->addHours(48)); // Cache for 48 hours
+                } else {
+                    throw new \Exception('Error in the Scryfall request');
+                }
+            } catch (\Exception $e) {
+                throw new \Exception('Error in the Scryfall request: ' . $e->getMessage());
             }
-        } catch (\Exception $e) {
-            throw new \Exception('Error in the Scryfall request: ' . $e->getMessage());
         }
+
+        return $setInfo;
     }
 
     /**
-     * Get set icon URI by set ID.
+     * Get set icon URI by set ID with caching.
      *
      * @param string $setId
      * @return string|null
      */
-    private function getSetIcon($setId)
+    private function getCachedSetIcon($setId)
     {
-        try {
-            $setInfo = $this->getSetById($setId);
-            $setIcon = isset($setInfo['icon_svg_uri']) ? $setInfo['icon_svg_uri'] : null;
-            return $setIcon;
-        } catch (\Exception $e) {
-            \Log::error("Error fetching set icon: {$e->getMessage()}");
-            return null;
+        $cacheKey = 'set_icon_' . $setId;
+
+        // Try to get set icon from cache
+        $setIcon = cache($cacheKey);
+
+        if ($setIcon === null) {
+            // If not in cache, fetch set details and store the icon in cache
+            try {
+                $setInfo = $this->getSetById($setId);
+                $setIcon = isset($setInfo['icon_svg_uri']) ? $setInfo['icon_svg_uri'] : null;
+
+                cache([$cacheKey => $setIcon], now()->addHours(48));
+            } catch (\Exception $e) {
+                \Log::error("Error fetching set icon: {$e->getMessage()}");
+                $setIcon = null;
+            }
         }
+
+        return $setIcon;
     }
 }
