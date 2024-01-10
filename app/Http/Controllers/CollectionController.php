@@ -54,6 +54,37 @@ class CollectionController extends Controller
     }
 
     /**
+     * Delete a collection and associated collected card prints.
+     *
+     * @param int $collectionId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function delete($collectionId)
+    {
+        try {
+            // Check if the collection exists
+            $collectionExists = Collection::where('id', $collectionId)->exists();
+
+            if (!$collectionExists) {
+                return response()->json(['error' => 'Collection not found.'], 404);
+            }
+
+            // Delete collected card prints associated with the collection
+            CollectedCardPrint::where('collection_id', $collectionId)->delete();
+
+            // Delete the collection
+            Collection::where('id', $collectionId)->delete();
+
+            // Return a successful response
+            return response()->json(['message' => 'Collection deleted successfully.'], 200);
+
+        } catch (QueryException $exception) {
+            // Handle exceptions during the process
+            return response()->json(['error' => 'Error deleting collection.'], 500);
+        }
+    }
+
+    /**
      * Get all collections for a specific user.
      *
      * @param int $userId
@@ -82,37 +113,6 @@ class CollectionController extends Controller
         } catch (\Exception $exception) {
             // Handle general exceptions
             return response()->json(['error' => 'Error retrieving user collections.'], 500);
-        }
-    }
-
-    /**
-     * Delete a collection and associated collected card prints.
-     *
-     * @param int $collectionId
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function delete($collectionId)
-    {
-        try {
-            // Check if the collection exists
-            $collectionExists = Collection::where('id', $collectionId)->exists();
-
-            if (!$collectionExists) {
-                return response()->json(['error' => 'Collection not found.'], 404);
-            }
-
-            // Delete collected card prints associated with the collection
-            CollectedCardPrint::where('collection_id', $collectionId)->delete();
-
-            // Delete the collection
-            Collection::where('id', $collectionId)->delete();
-
-            // Return a successful response
-            return response()->json(['message' => 'Collection deleted successfully.'], 200);
-
-        } catch (QueryException $exception) {
-            // Handle exceptions during the process
-            return response()->json(['error' => 'Error deleting collection.'], 500);
         }
     }
 

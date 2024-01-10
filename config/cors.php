@@ -31,6 +31,6 @@ return [
 
     'supports_credentials' => false,
 
-    // 'allowed_origins' => ['https://myglobalset.com', 'http://localhost:4200']
+    'allowed_origins' => ['https://myglobalset.com', 'http://localhost:4200']
 
 ];

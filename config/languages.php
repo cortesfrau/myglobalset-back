@@ -38,7 +38,7 @@ return [
         'flag_icon' => 'fi fi-pt fis',
     ],
 
-    'jp' => [
+    'ja' => [
         'name' => 'Japanese',
         'code' => 'jp',
         'flag_icon' => 'fi fi-jp fis',

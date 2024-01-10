@@ -49,48 +49,28 @@ class ScryfallController extends Controller
 
         return array_map(function ($cardPrinting) use ($languagesData) {
             $languageCode = $cardPrinting['lang'];
+            $languageData = $languagesData[$languageCode];
+            $setIcon = $this->getCachedSetIcon($cardPrinting['set_id']);
 
-            if (isset($languagesData[$languageCode])) {
-                $languageData = $languagesData[$languageCode];
+            return [
+                'id' => $cardPrinting['id'],
+                'set_name' => $cardPrinting['set_name'],
+                'set_id' => $cardPrinting['set_id'],
+                'lang' => [
+                    'name' => $languageData['name'],
+                    'code' => $languageData['code'],
+                    'flag_icon' => $languageData['flag_icon'],
+                ],
+                'image_uri' => $cardPrinting['image_uris']['png'],
+                'digital' => $cardPrinting['digital'],
+                'artist' => $cardPrinting['artist'],
+                'set_release_date' => $cardPrinting['released_at'],
+                'foil' => $cardPrinting['foil'],
+                'nonfoil' => $cardPrinting['nonfoil'],
+                'is_collected' => null,
+                'set_icon' => $setIcon,
+            ];
 
-                $setIcon = $this->getCachedSetIcon($cardPrinting['set_id']);
-
-                return [
-                    'id' => $cardPrinting['id'],
-                    'set_name' => $cardPrinting['set_name'],
-                    'set_id' => $cardPrinting['set_id'],
-                    'lang' => [
-                        'name' => $languageData['name'],
-                        'code' => $languageData['code'],
-                        'flag_icon' => $languageData['flag_icon'],
-                    ],
-                    'image_uri' => $cardPrinting['image_uris']['png'],
-                    'digital' => $cardPrinting['digital'],
-                    'artist' => $cardPrinting['artist'],
-                    'set_release_date' => $cardPrinting['released_at'],
-                    'foil' => $cardPrinting['foil'],
-                    'nonfoil' => $cardPrinting['nonfoil'],
-                    'is_collected' => null,
-                    'set_icon' => $setIcon,
-                ];
-            } else {
-                $english = [
-                    'name' => 'English',
-                    'code' => 'en',
-                    'flag_icon' => 'fi fi-gb fis',
-                ];
-
-                return [
-                    'id' => $cardPrinting['oracle_id'],
-                    'set_name' => $cardPrinting['set_name'],
-                    'set_id' => $cardPrinting['set_id'],
-                    'lang' => $english,
-                    'image_uri' => $cardPrinting['image_uris']['png'],
-                    'digital' => $cardPrinting['digital'],
-                    'artist' => $cardPrinting['artist'],
-                    'set_release_date' => $cardPrinting['released_at'],
-                ];
-            }
         }, $cardPrintings);
     }
 
