@@ -46,13 +46,14 @@ class ScryfallController extends Controller
     private function mapCardPrintings($cardPrintings)
     {
         $languagesData = config('languages');
+        $mappedPrintings = [];
 
-        return array_map(function ($cardPrinting) use ($languagesData) {
+        foreach ($cardPrintings as $cardPrinting) {
             $languageCode = $cardPrinting['lang'];
             $languageData = $languagesData[$languageCode];
             $setIcon = $this->getCachedSetIcon($cardPrinting['set_id']);
 
-            return [
+            $result = [
                 'id' => $cardPrinting['id'],
                 'set_name' => $cardPrinting['set_name'],
                 'set_id' => $cardPrinting['set_id'],
@@ -71,8 +72,41 @@ class ScryfallController extends Controller
                 'set_icon' => $setIcon,
             ];
 
-        }, $cardPrintings);
+            // Duplicate if both foil and nonfoil are true
+            if ($cardPrinting['foil'] && $cardPrinting['nonfoil']) {
+                $foilVersion = 'foil';
+                $foilId = $cardPrinting['id'] . '_' . $foilVersion;
+
+                $foilResult = [
+                    'id' => $foilId,
+                    'set_name' => $result['set_name'],
+                    'set_id' => $result['set_id'],
+                    'lang' => [
+                        'name' => $languageData['name'],
+                        'code' => $languageData['code'],
+                        'flag_icon' => $languageData['flag_icon'],
+                    ],
+                    'image_uri' => $result['image_uri'],
+                    'digital' => $result['digital'],
+                    'artist' => $result['artist'],
+                    'set_release_date' => $result['set_release_date'],
+                    'foil' => $result['foil'],
+                    'nonfoil' => $result['nonfoil'],
+                    'is_collected' => $result['is_collected'],
+                    'set_icon' => $result['set_icon'],
+                    'is_foil_version' => true,
+                ];
+
+                $mappedPrintings[] = $result;
+                $mappedPrintings[] = $foilResult;
+            } else {
+                $mappedPrintings[] = $result;
+            }
+        }
+
+        return $mappedPrintings;
     }
+
 
     /**
      * Get card printings by Oracle ID with caching.
