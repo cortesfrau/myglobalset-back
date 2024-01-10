@@ -15,7 +15,7 @@ return [
     |
     */
 
-    'paths' => ['api/*', 'sanctum/csrf-cookie'],
+    'paths' => ['api/*', 'sanctum/csrf-cookie', 'api'],
 
     'allowed_methods' => ['*'],
 
@@ -30,7 +30,5 @@ return [
     'max_age' => 0,
 
     'supports_credentials' => false,
-
-    'allowed_origins' => ['https://myglobalset.com', 'http://localhost:4200']
 
 ];
