@@ -37,7 +37,6 @@ Route::group([
     Route::post('logout', [AuthController::class, 'logout']);
     Route::post('refresh', [AuthController::class, 'refresh']);
     Route::get('me', [AuthController::class, 'me']);
-
     Route::post('send-password-reset-link', [ResetPasswordController::class, 'sendEmail']);
     Route::post('change-password', [ResetPasswordController::class, 'processPasswordChange']);
 
@@ -95,9 +94,7 @@ Route::group([
 ], function ($router) {
 
     Route::get('card/{cardName}', [ScryfallController::class, 'getCardByName']);
-
     Route::get('card/id/{oracleId}', [ScryfallController::class, 'getCardByOracleId']);
-
     Route::get('set/{setId}', [ScryfallController::class, 'getSetById']);
 
 });
